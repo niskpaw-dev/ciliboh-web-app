@@ -18,13 +18,21 @@ function getStatusClass(st) {
 function renderUI() {
     if (!window.db) return;
 
-    // 1. Kemaskini Stats (Dashboard)
-    document.getElementById('stat-sales').innerText = `RM ${window.db.summary[1][1] || 0}`;
-    document.getElementById('stat-profit').innerText = `RM ${window.db.summary[1][4] || 0}`;
+    // 1. Tapis data order yang sah
+    const validOrders = window.db.orders.filter(o => o[0] !== "");
 
-    // 2. Kemaskini Dropdowns (Order Form)
-    document.getElementById('input-customer').innerHTML = window.db.customers.map(c => `<option value="${c[1]}">${c[1]}</option>`).join('');
-    document.getElementById('input-product').innerHTML = window.db.products.map(p => `<option value="${p[1]}">${p[1]}</option>`).join('');
+    // --- KIRA TOTAL SALES SECARA LIVE ---
+    // o[6] adalah Gross_Amount dalam Google Sheets
+    const liveSales = validOrders.reduce((sum, o) => sum + parseFloat(o[6] || 0), 0);
+    
+    // Ambil profit dari summary atau buat anggaran (cth: 30% dari sales)
+    const liveProfit = window.db.summary[1] ? window.db.summary[1][4] : (liveSales * 0.3).toFixed(2);
+
+    document.getElementById('stat-sales').innerText = `RM ${liveSales.toFixed(2)}`;
+    document.getElementById('stat-profit').innerText = `RM ${liveProfit}`;
+    // ------------------------------------
+
+    // ... (Teruskan dengan kod dropdown dan list order seperti biasa)
 
     // 3. Tapis data order yang sah
     const validOrders = window.db.orders.filter(o => o[0] !== "");
