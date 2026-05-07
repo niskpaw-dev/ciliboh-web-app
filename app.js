@@ -40,17 +40,41 @@ async function submitOrder() {
     location.reload();
 }
 
-async function submitNewCustomer() {
+async function submitCustomer() {
+    // 1. Ambil nilai dari input
+    const name = document.getElementById('nc-name').value;
+    const cat = document.getElementById('nc-cat').value;
+    const phone = document.getElementById('nc-phone').value;
+
+    // 2. Validasi ringkas
+    if (!name || !phone) {
+        alert("Sila masukkan Nama dan No Telefon!");
+        return;
+    }
+
     const payload = {
         action: 'addCustomer',
-        name: document.getElementById('nc-name').value,
-        category: document.getElementById('nc-cat').value, // Ambil 'Retail' atau 'Kilang'
-        phone: document.getElementById('nc-phone').value,
-        address: "-"
+        name: name,
+        category: cat,
+        phone: phone,
+        address: "-" // Kita letak dash dulu untuk address
     };
-    await apiPost(payload);
-    alert("Pelanggan Baru Berjaya Didaftar!");
-    location.reload();
+
+    console.log("Menghantar data pelanggan:", payload);
+
+    // 3. Hantar ke API
+    const res = await apiPost(payload);
+    
+    // 4. Maklumbalas kepada pengguna
+    alert("Pelanggan baru berjaya disimpan!");
+    
+    // 5. Reset form dan sembunyikan
+    document.getElementById('nc-name').value = "";
+    document.getElementById('nc-phone').value = "";
+    document.getElementById('new-cust-box').classList.add('hidden');
+    
+    // 6. Refresh data untuk masukkan nama baru dalam dropdown
+    location.reload(); 
 }
 async function updateSt(id, st) {
     await apiPost({action:'updateStatus', orderId: id, status: st});
