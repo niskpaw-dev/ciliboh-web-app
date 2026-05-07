@@ -28,16 +28,25 @@ function renderUI() {
 
     // Tracking
     document.getElementById('view-tracking').innerHTML = validOrders.map(o => `
-        <div class="neu-card p-4 space-y-2 mb-3 text-xs">
-            <div class="flex justify-between"><b>#${o[0]}</b> <span class="badge st-${o[12].toLowerCase()}">${o[12]}</span></div>
-            <p>${o[2]} - ${o[4]}</p>
-            <div class="flex gap-2">
-                <button onclick="updateSt('${o[0]}','Processing')" class="neu-btn px-2 py-1">Process</button>
-                <button onclick="updateSt('${o[0]}','Delivery')" class="neu-btn px-2 py-1">Deliver</button>
-                <button onclick="updateSt('${o[0]}','Completed')" class="neu-btn px-2 py-1 text-green-600">Done</button>
+        <div class="neu-card p-4 flex justify-between items-center text-[11px] mb-3">
+            <div class="space-y-1">
+                <p class="font-bold text-gray-700 leading-tight">${o[2]}</p>
+                <p class="text-gray-400 text-[9px]">${o[4]} x ${o[5]}</p>
+                <!-- Tambah Status Delivery di bawah info produk -->
+                <span class="badge ${getStatusClass(o[12])}">${o[12] || 'Pending'}</span>
+            </div>
+            
+            <div class="text-right flex flex-col items-end space-y-1">
+                <p class="font-bold text-gray-800 text-sm">RM ${parseFloat(o[8]).toFixed(2)}</p>
+                <!-- Indikator Bayaran yang Jelas -->
+                <div class="flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full ${payStatus === 'Paid' ? 'bg-green-500' : payStatus === 'Partial' ? 'bg-orange-500' : 'bg-red-500'}"></span>
+                    <span class="payment-text ${payClass}">${payStatus}</span>
+                </div>
             </div>
         </div>
-    `).join('');
+    `;
+}).join('');
     
     updatePrice();
 }
