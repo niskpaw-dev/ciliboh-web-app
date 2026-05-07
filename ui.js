@@ -134,14 +134,14 @@ function renderRecentOrders(validOrders) {
             : '';
 
         return `
-        <div class="neu-card p-3 flex justify-between items-center text-[11px] mb-3">
-            <div>
-                <p class="font-bold text-gray-700">${escapeHtml(o[2])}</p>
-                <p class="text-gray-400 text-[9px]">${escapeHtml(o[4])} x ${o[5] || 0}</p>
+        <div class="neu-card p-3 flex justify-between items-center gap-3 text-[11px] mb-3">
+            <div class="min-w-0 flex-1">
+                <p class="font-bold text-gray-700 truncate">${escapeHtml(o[2])}</p>
+                <p class="text-gray-400 text-[9px] truncate">${escapeHtml(o[4])} x ${o[5] || 0}</p>
                 <span class="badge ${getStatusClass(o[12])}">${escapeHtml(o[12] || 'Pending')}</span>
             </div>
-            <div class="text-right flex flex-col items-end">
-                <p class="font-bold text-red-500">RM ${netAmount.toFixed(2)}</p>
+            <div class="text-right flex flex-col items-end flex-shrink-0">
+                <p class="font-bold text-red-500 whitespace-nowrap">RM ${netAmount.toFixed(2)}</p>
                 <div class="flex items-center gap-1 mt-1">
                     <span class="w-1.5 h-1.5 rounded-full ${getPaymentDot(payStatus)}"></span>
                     <span class="payment-text ${getPaymentClass(payStatus)}">${escapeHtml(payStatus)}</span>
@@ -176,26 +176,26 @@ function renderTracking(validOrders, allReturns) {
 
         return `
             <div class="neu-card p-4 space-y-2 mb-3 text-xs">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <b>#${escapeHtml(orderId)}</b>
+                <div class="flex justify-between items-center gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <b class="truncate">#${escapeHtml(orderId)}</b>
                         ${returnBadge}
                     </div>
-                    <span class="badge ${getStatusClass(o[12])}">${escapeHtml(o[12] || 'Pending')}</span>
+                    <span class="badge ${getStatusClass(o[12])} flex-shrink-0">${escapeHtml(o[12] || 'Pending')}</span>
                 </div>
-                <p class="font-bold text-gray-700">${escapeHtml(o[2])} - ${escapeHtml(product)} (${qty})</p>
+                <p class="font-bold text-gray-700 truncate">${escapeHtml(o[2])} - ${escapeHtml(product)} (${qty})</p>
                 
                 <!-- Row 1: Status update buttons -->
                 <div class="flex gap-2 pt-2 border-t border-white/20">
-                    <button onclick="updateSt('${escapeAttr(orderId)}','Processing')" class="neu-btn px-2 py-1 text-[9px] flex-1">Process</button>
-                    <button onclick="updateSt('${escapeAttr(orderId)}','Delivery')" class="neu-btn px-2 py-1 text-[9px] flex-1">Deliver</button>
-                    <button onclick="updateSt('${escapeAttr(orderId)}','Completed')" class="neu-btn px-2 py-1 text-[9px] flex-1 text-green-600 font-bold">Done</button>
+                    <button onclick="updateSt('${escapeAttr(orderId)}','Processing')" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0">Process</button>
+                    <button onclick="updateSt('${escapeAttr(orderId)}','Delivery')" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0">Deliver</button>
+                    <button onclick="updateSt('${escapeAttr(orderId)}','Completed')" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0 text-green-600 font-bold">Done</button>
                 </div>
                 
                 <!-- Row 2: Secondary actions -->
                 <div class="flex gap-2">
-                    <button onclick="openReturnModal('${escapeAttr(orderId)}','${escapeAttr(product)}',${qty})" class="neu-btn px-2 py-1 text-[9px] flex-1 text-orange-600 font-bold">↺ Return</button>
-                    <button onclick="sendStatusWA('${escapeAttr(orderId)}')" class="neu-btn px-2 py-1 text-[9px] flex-1 text-green-600 font-bold">💬 WhatsApp</button>
+                    <button onclick="openReturnModal('${escapeAttr(orderId)}','${escapeAttr(product)}',${qty})" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0 text-orange-600 font-bold">↺ Return</button>
+                    <button onclick="sendStatusWA('${escapeAttr(orderId)}')" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0 text-green-600 font-bold">💬 WA</button>
                 </div>
             </div>
         `;
@@ -224,13 +224,13 @@ function renderStockSection() {
 
         return `
             <div class="neu-card p-3 mb-2 text-xs">
-                <div class="flex justify-between items-center mb-2">
-                    <p class="font-bold text-gray-700">${escapeHtml(name)}</p>
-                    <span class="font-bold ${stockColor}">Stok: ${stock}</span>
+                <div class="flex justify-between items-center mb-2 gap-2">
+                    <p class="font-bold text-gray-700 truncate min-w-0">${escapeHtml(name)}</p>
+                    <span class="font-bold ${stockColor} flex-shrink-0">Stok: ${stock}</span>
                 </div>
                 <div class="flex gap-2">
-                    <input type="number" id="${inputId}" class="neu-input flex-1 text-xs" placeholder="Tambah qty" min="1">
-                    <button onclick="submitRestock('${escapeAttr(name)}')" class="neu-btn px-3 py-1 text-[10px] font-bold text-blue-600">+ Restock</button>
+                    <input type="number" id="${inputId}" class="neu-input flex-1 min-w-0 text-xs" placeholder="Qty" min="1">
+                    <button onclick="submitRestock('${escapeAttr(name)}')" class="neu-btn px-3 py-1 text-[10px] font-bold text-blue-600 flex-shrink-0 whitespace-nowrap">+ Stok</button>
                 </div>
             </div>
         `;
@@ -250,14 +250,14 @@ function renderReturnsHistory(allReturns) {
 
     list.innerHTML = allReturns.map(r => `
         <div class="neu-card p-3 mb-2 text-[11px]">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="font-bold text-gray-700">${escapeHtml(r[1])}</p>
-                    <p class="text-gray-500 text-[9px]">${escapeHtml(r[4] || '-')}</p>
+            <div class="flex justify-between items-start gap-2">
+                <div class="min-w-0 flex-1">
+                    <p class="font-bold text-gray-700 truncate">${escapeHtml(r[1])}</p>
+                    <p class="text-gray-500 text-[9px] truncate">${escapeHtml(r[4] || '-')}</p>
                 </div>
-                <div class="text-right">
-                    <p class="font-bold text-orange-600">${r[3] || 0} unit</p>
-                    <p class="text-gray-400 text-[9px]">${formatDate(r[2])}</p>
+                <div class="text-right flex-shrink-0">
+                    <p class="font-bold text-orange-600 whitespace-nowrap">${r[3] || 0} unit</p>
+                    <p class="text-gray-400 text-[9px] whitespace-nowrap">${formatDate(r[2])}</p>
                 </div>
             </div>
         </div>
