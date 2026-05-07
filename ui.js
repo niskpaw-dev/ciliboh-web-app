@@ -13,50 +13,61 @@ function renderInitialUI() {
     if (!window.db) return;
 
     // 1. Update Stats (Dari tab Summary)
-    document.getElementById('stat-sales').innerText = `RM ${window.db.summary[1][1] || 0}`;
-    document.getElementById('stat-profit').innerText = `RM ${window.db.summary[1][4] || 0}`;
+    // Pastikan Summary ditarik dengan betul (Baris 2, Kolum 1 dan 4)
+    const salesToday = window.db.summary[1] ? window.db.summary[1][1] : 0;
+    const profitToday = window.db.summary[1] ? window.db.summary[1][4] : 0;
+    
+    document.getElementById('stat-sales').innerText = `RM ${salesToday}`;
+    document.getElementById('stat-profit').innerText = `RM ${profitToday}`;
 
-    // 2. Update Dropdowns (Order Form)
+    // 2. Update Dropdowns
     const custSelect = document.getElementById('input-customer');
     const prodSelect = document.getElementById('input-product');
     custSelect.innerHTML = window.db.customers.map(c => `<option value="${c[1]}">${c[1]}</option>`).join('');
     prodSelect.innerHTML = window.db.products.map(p => `<option value="${p[1]}">${p[1]}</option>`).join('');
 
-    // 3. Update Pesanan Terkini (Dashboard)
-    const recentList = document.getElementById('recent-orders-list');
-    if (window.db.orders.length > 0) {
-        recentList.innerHTML = window.db.orders.map(o => `
-            <div class="neu-card p-3 flex justify-between items-center text-[10px]">
-                <div>
-                    <span class="font-bold text-gray-700">${o[2]}</span><br>
-                    <span class="text-gray-400">${o[4]} x ${o[5]}</span>
-                </div>
-                <div class="text-right">
-                    <span class="font-bold text-red-500">RM ${o[8]}</span><br>
-                    <span class="badge ${getStatusClass(o[12])}">${o[12] || 'Pending'}</span>
-                </div>
-            </div>
-        `).join('');
-    } else {
-        recentList.innerHTML = `<p class="text-center text-gray-400 text-xs py-4">Tiada pesanan ditemui.</p>`;
-    }
+    // Tapis pesanan (Hanya ambil baris yang ada Order_ID)
+    const validOrders = window.db.orders.filter(o => o[0] !== "");
 
-    // 4. Update Tracking List
+    // 3. Render Pesanan Terkini (Dashboard)
+    const recentList = document.getElementById('recent-orders-list');
+    recentList.innerHTML = validOrders.length > 0 ? validOrders.map(o => `
+        <div class="neu-card p-4 flex justify-between items-center text-[11px] mb-3">
+            <div>
+                <p class="font-bold text-gray-700">${o[2]}</p>
+                <p class="text-gray-400">${o[4]} x ${o[5]}</p>
+            </div>
+            <div class="text-right">
+                <p class="font-bold text-red-500">RM ${parseFloat(o[8]).toFixed(2)}</p>
+                <span class="badge ${getStatusClass(o[12])}">${o[12] || 'Pending'}</span>
+            </div>
+        </div>
+    `).join('') : `<p class="text-center text-gray-400 text-xs py-4">Tiada pesanan hari ini.</p>`;
+
+    // 4. Render Tracking List (Delivery)
     const trackingList = document.getElementById('tracking-list');
-    trackingList.innerHTML = window.db.orders.map(o => `
-        <div class="neu-card p-4 space-y-2">
+    trackingList.innerHTML = validOrders.length > 0 ? validOrders.map(o => `
+        <div class="neu-card p-5 space-y-3 mb-4">
             <div class="flex justify-between items-center">
                 <span class="text-[10px] font-bold text-gray-400">#${o[0]}</span>
                 <span class="badge ${getStatusClass(o[12])}">${o[12] || 'Pending'}</span>
             </div>
-            <p class="text-xs font-bold text-gray-700">${o[2]}</p>
-            <div class="flex gap-2 mt-2">
-                <button onclick="updateStatus('${o[0]}', 'Processing')" class="btn-status">Process</button>
-                <button onclick="updateStatus('${o[0]}', 'Delivery')" class="btn-status">Deliver</button>
-                <button onclick="updateStatus('${o[0]}', 'Completed')" class="btn-status text-green-600">Done</button>
+            <p class="text-sm font-bold text-gray-700">${o[2]}</p>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+                <button onclick="changeDeliveryStatus('${o[0]}', 'Processing')" class="neu-btn py-2 text-[9px] font-bold">PROCESS</button>
+                <button onclick="changeDeliveryStatus('${o[0]}', 'Delivery')" class="neu-btn py-2 text-[9px] font-bold">DELIVER</button>
+                <button onclick="changeDeliveryStatus('${o[0]}', 'Completed')" class="neu-btn py-2 text-[9px] font-bold text-green-600">DONE</button>
             </div>
         </div>
-    `).join('');
+    `).join('') : `<p class="text-center text-gray-400 text-xs py-10">Tiada barang untuk dihantar.</p>`;
+}
+
+function getStatusClass(status) {
+    status = String(status).toLowerCase();
+    if (status === 'pending') return 'status-pending';
+    if (status === 'delivery') return 'status-delivery';
+    if (status === 'completed') return 'status-completed';
+    return 'status-processing';
 }
 
 // Helper untuk warna badge
