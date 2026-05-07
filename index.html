@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cili Boh System v1</title>
+    <title>Cili Boh System v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -15,6 +15,49 @@
         <!-- Loading Overlay -->
         <div id="loading-overlay" class="loading-overlay hidden">
             <div class="loader"></div>
+        </div>
+
+        <!-- RETURN MODAL -->
+        <div id="return-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeReturnModal()">
+            <div class="modal-content neu-card p-5 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-gray-700">Return / Replacement</h3>
+                    <button onclick="closeReturnModal()" class="text-gray-400 text-lg font-bold leading-none">×</button>
+                </div>
+
+                <div class="text-[10px] space-y-1 bg-white/30 p-2 rounded-lg">
+                    <p><span class="text-gray-400">Order:</span> <b id="rt-order-id">-</b></p>
+                    <p><span class="text-gray-400">Produk:</span> <b id="rt-product-name">-</b> (asal: <span id="rt-original-qty">0</span>)</p>
+                </div>
+
+                <input type="hidden" id="rt-order-id-hidden">
+                <input type="hidden" id="rt-product-hidden">
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Kuantiti Rosak</label>
+                    <input type="number" id="rt-qty" class="neu-input w-full" value="1" min="1">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Sebab</label>
+                    <select id="rt-reason" class="neu-input w-full">
+                        <option>Pakej Pecah</option>
+                        <option>Cili Masam</option>
+                        <option>Cili Berkulat</option>
+                        <option>Quantity Kurang</option>
+                        <option>Lain-lain</option>
+                    </select>
+                </div>
+
+                <div class="text-[9px] text-gray-500 italic px-1">
+                    Stok akan dikurangkan untuk replacement units. Sales tidak terjejas.
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="closeReturnModal()" class="neu-btn flex-1 py-3 text-xs font-bold text-gray-600">Batal</button>
+                    <button onclick="submitReturn()" class="neu-btn flex-1 py-3 text-xs font-bold bg-orange-500 text-white">SIMPAN</button>
+                </div>
+            </div>
         </div>
 
         <header class="p-6 text-center">
@@ -46,7 +89,6 @@
             <section id="view-order" class="app-view hidden space-y-4">
                 <div class="neu-card p-5 space-y-4">
 
-                    <!-- Pelanggan + Tier -->
                     <div class="space-y-1">
                         <div class="flex justify-between items-center px-1">
                             <label class="text-[10px] font-bold text-gray-400 uppercase">Pelanggan</label>
@@ -55,13 +97,14 @@
                         <select id="input-customer" class="neu-input w-full" onchange="updatePrice()"></select>
                     </div>
 
-                    <!-- Produk -->
                     <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Produk</label>
+                        <div class="flex justify-between items-center px-1">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Produk</label>
+                            <span id="product-stock" class="text-[9px] font-bold text-gray-500 uppercase">STOK: -</span>
+                        </div>
                         <select id="input-product" class="neu-input w-full" onchange="updatePrice()"></select>
                     </div>
 
-                    <!-- Kuantiti & Deposit -->
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Kuantiti</label>
@@ -73,7 +116,6 @@
                         </div>
                     </div>
 
-                    <!-- Total -->
                     <div class="neu-card p-4 bg-white/20 flex justify-between items-center">
                         <span class="text-xs font-bold text-gray-500">TOTAL:</span>
                         <span id="display-total" class="text-lg font-bold text-red-500">RM 0.00</span>
@@ -86,7 +128,6 @@
                     </div>
                 </div>
 
-                <!-- Form Pelanggan Baru -->
                 <div id="new-cust-box" class="hidden neu-card p-4 space-y-2 border border-blue-200">
                     <input id="nc-name" class="neu-input w-full" placeholder="Nama Kedai">
                     <select id="nc-cat" class="neu-input w-full">
@@ -104,7 +145,15 @@
             </section>
 
             <!-- VIEW: REPORT -->
-            <section id="view-report" class="app-view hidden space-y-4">
+            <section id="view-report" class="app-view hidden space-y-5">
+
+                <!-- Stock Section -->
+                <div class="neu-card p-5">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Stok Produk</h3>
+                    <div id="stock-list"></div>
+                </div>
+
+                <!-- Expense Form -->
                 <div class="neu-card p-5 space-y-4">
                     <h3 class="text-[10px] font-bold text-gray-400 uppercase">Perbelanjaan</h3>
                     <select id="exp-cat" class="neu-input w-full">
@@ -117,6 +166,13 @@
                     <input id="exp-amt" type="number" class="neu-input w-full" placeholder="Amaun RM" min="0" step="0.01">
                     <button onclick="submitExpense()" class="neu-btn w-full py-3 font-bold text-gray-600">SIMPAN KOS</button>
                 </div>
+
+                <!-- Returns History -->
+                <div class="neu-card p-5">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Returns Terkini</h3>
+                    <div id="returns-list"></div>
+                </div>
+
             </section>
 
         </main>
