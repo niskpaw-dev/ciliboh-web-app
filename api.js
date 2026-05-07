@@ -4,9 +4,6 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbyy2SflnvVyajIcveKivKKu5B7KwJxShnKPbQMr6XJhwPZKCrBCSurciesFLraruVXhmQ/exec';
 
-/**
- * Fetch initial data dari Sheet (products, customers, orders, stats)
- */
 async function fetchInitialData() {
     try {
         showLoading(true);
@@ -22,10 +19,6 @@ async function fetchInitialData() {
     }
 }
 
-/**
- * POST ke API. Hantar sebagai text/plain untuk elak CORS preflight di GAS.
- * Return result object yang sentiasa ada `result: 'success'|'error'`.
- */
 async function apiPost(payload) {
     try {
         const res = await fetch(API_URL, {
@@ -55,7 +48,5 @@ function showError(msg) {
 function showSuccess(msg) {
     alert("✓  " + msg);
 }
-
-// ---------- Auto-load ----------
 
 document.addEventListener('DOMContentLoaded', fetchInitialData);
