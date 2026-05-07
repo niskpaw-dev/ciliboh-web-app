@@ -56,3 +56,27 @@ async function changeDeliveryStatus(orderId, newStatus) {
         location.reload(); 
     }
 }
+function toggleNewCustomerForm() {
+    const form = document.getElementById('new-customer-form');
+    form.classList.toggle('hidden');
+}
+
+async function submitNewCustomer() {
+    const name = document.getElementById('new-cust-name').value;
+    const cat = document.getElementById('new-cust-cat').value;
+    const phone = document.getElementById('new-cust-phone').value;
+
+    if (!name || !phone) return alert("Sila isi nama dan phone!");
+
+    const payload = {
+        action: 'addCustomer',
+        name: name,
+        category: cat,
+        phone: phone,
+        address: "-"
+    };
+
+    const res = await apiPost(payload);
+    alert("Pelanggan Berjaya Ditambah!");
+    location.reload(); // Refresh untuk masukkan nama baru dalam dropdown
+}
