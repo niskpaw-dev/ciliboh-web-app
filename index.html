@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
-<body class="bg-[#e0e5ec] flex items-center justify-center h-screen (100vh) overflow-hidden">
+<body class="bg-[#e0e5ec] flex items-center justify-center h-[100dvh] overflow-hidden">
 
     <div class="relative bg-[#e0e5ec] w-full h-full max-w-[450px] shadow-2xl overflow-hidden flex flex-col">
 
@@ -60,15 +60,15 @@
             </div>
         </div>
 
-        <header class="p-6 text-center">
+        <header class="flex-shrink-0 p-6 text-center">
             <h1 class="text-xl font-bold text-gray-700">CILI BOH SYSTEM</h1>
             <p id="current-view-title" class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Dashboard</p>
         </header>
 
-        <main class="flex-1 px-6 pb-24 overflow-y-auto custom-scroll">
+        <main class="flex-1 px-6 overflow-y-auto custom-scroll">
 
             <!-- VIEW: DASHBOARD -->
-            <section id="view-dashboard" class="app-view space-y-6">
+            <section id="view-dashboard" class="app-view space-y-6 pb-6">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="neu-card p-4">
                         <span class="text-[9px] text-gray-400 font-bold uppercase">Sales</span>
@@ -86,7 +86,7 @@
             </section>
 
             <!-- VIEW: ORDER FORM -->
-            <section id="view-order" class="app-view hidden space-y-4">
+            <section id="view-order" class="app-view hidden space-y-4 pb-6">
                 <div class="neu-card p-5 space-y-4">
 
                     <div class="space-y-1">
@@ -140,12 +140,12 @@
             </section>
 
             <!-- VIEW: TRACKING -->
-            <section id="view-tracking" class="app-view hidden space-y-4">
+            <section id="view-tracking" class="app-view hidden space-y-4 pb-6">
                 <div id="tracking-list"></div>
             </section>
 
             <!-- VIEW: REPORT -->
-            <section id="view-report" class="app-view hidden space-y-5">
+            <section id="view-report" class="app-view hidden space-y-5 pb-6">
 
                 <!-- Stock Section -->
                 <div class="neu-card p-5">
@@ -177,7 +177,7 @@
 
         </main>
 
-        <nav class="absolute bottom-0 w-full h-20 bg-[#e0e5ec] flex items-center justify-around border-t border-white/20">
+        <nav class="flex-shrink-0 h-20 bg-[#e0e5ec] flex items-center justify-around border-t border-white/20">
             <button onclick="switchView('dashboard')" class="nav-btn active" id="nav-dashboard">🏠</button>
             <button onclick="switchView('order')" class="nav-btn" id="nav-order">➕</button>
             <button onclick="switchView('tracking')" class="nav-btn" id="nav-tracking">🚚</button>
