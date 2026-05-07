@@ -3,6 +3,7 @@
     --light: #ffffff;
     --dark: #a3b1c6;
     --red: #ff4d4d;
+    --orange: #f97316;
 }
 
 body {
@@ -67,7 +68,7 @@ body {
     box-shadow: inset 4px 4px 8px var(--dark), inset -4px -4px 8px var(--light);
 }
 
-/* ---------- BADGE (Delivery Status) ---------- */
+/* ---------- BADGE ---------- */
 
 .badge {
     padding: 2px 8px;
@@ -119,6 +120,40 @@ body {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* ---------- MODAL ---------- */
+
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(60, 70, 90, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 360px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 /* ---------- UTILITIES ---------- */
