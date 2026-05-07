@@ -1,28 +1,132 @@
-:root { --bg: #e0e5ec; --light: #ffffff; --dark: #a3b1c6; --red: #ff4d4d; }
-body { font-family: 'Poppins', sans-serif; background: var(--bg); }
-.neu-card { background: var(--bg); border-radius: 20px; box-shadow: 7px 7px 14px var(--dark), -7px -7px 14px var(--light); }
-.neu-input { background: var(--bg); border-radius: 12px; border:none; box-shadow: inset 4px 4px 8px var(--dark), inset -4px -4px 8px var(--light); padding: 12px; outline: none; font-size: 13px; }
-.neu-btn { background: var(--bg); border-radius: 12px; box-shadow: 4px 4px 8px var(--dark), -4px -4px 8px var(--light); transition: 0.2s; }
-.neu-btn:active { box-shadow: inset 3px 3px 6px var(--dark); }
-.neu-btn-primary { background: var(--red); color: white; border-radius: 15px; box-shadow: 4px 4px 10px var(--dark); }
-.nav-btn { font-size: 20px; opacity: 0.4; transition: 0.3s; padding: 10px; border-radius: 50%; }
-.nav-btn.active { opacity: 1; color: var(--red); box-shadow: inset 4px 4px 8px var(--dark), inset -4px -4px 8px var(--light); }
-.badge { padding: 2px 8px; border-radius: 10px; font-size: 9px; font-bold; text-transform: uppercase; }
-.st-pending { background: #fff3cd; color: #856404; }
-.st-delivery { background: #d1ecf1; color: #0c5460; }
-.st-completed { background: #d4edda; color: #155724; }
-.hidden { display: none; }
-.custom-scroll::-webkit-scrollbar { width: 0; }
-/* Status Bayaran (Payment Status) */
-.pay-paid { color: #166534; font-weight: bold; }       /* Hijau gelap */
-.pay-partial { color: #92400e; font-weight: bold; }    /* Jingga/Coklat */
-.pay-unpaid { color: #991b1b; font-weight: bold; }     /* Merah gelap */
+:root {
+    --bg: #e0e5ec;
+    --light: #ffffff;
+    --dark: #a3b1c6;
+    --red: #ff4d4d;
+}
 
-/* Kecilkan sikit font status bayaran */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+}
+
+/* ---------- NEUMORPHISM COMPONENTS ---------- */
+
+.neu-card {
+    background: var(--bg);
+    border-radius: 20px;
+    box-shadow: 7px 7px 14px var(--dark), -7px -7px 14px var(--light);
+}
+
+.neu-input {
+    background: var(--bg);
+    border-radius: 12px;
+    border: none;
+    box-shadow: inset 4px 4px 8px var(--dark), inset -4px -4px 8px var(--light);
+    padding: 12px;
+    outline: none;
+    font-size: 13px;
+}
+
+.neu-btn {
+    background: var(--bg);
+    border-radius: 12px;
+    box-shadow: 4px 4px 8px var(--dark), -4px -4px 8px var(--light);
+    transition: 0.2s;
+}
+
+.neu-btn:active {
+    box-shadow: inset 3px 3px 6px var(--dark);
+}
+
+.neu-btn-primary {
+    background: var(--red);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 4px 4px 10px var(--dark);
+    transition: 0.2s;
+}
+
+.neu-btn-primary:active {
+    box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- NAVIGATION ---------- */
+
+.nav-btn {
+    font-size: 20px;
+    opacity: 0.4;
+    transition: 0.3s;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.nav-btn.active {
+    opacity: 1;
+    color: var(--red);
+    box-shadow: inset 4px 4px 8px var(--dark), inset -4px -4px 8px var(--light);
+}
+
+/* ---------- BADGE (Delivery Status) ---------- */
+
+.badge {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.st-pending    { background: #fff3cd; color: #856404; }
+.st-processing { background: #dbeafe; color: #1e40af; }
+.st-delivery   { background: #d1ecf1; color: #0c5460; }
+.st-completed  { background: #d4edda; color: #155724; }
+
+/* ---------- PAYMENT STATUS ---------- */
+
+.pay-paid    { color: #166534; font-weight: bold; }
+.pay-partial { color: #92400e; font-weight: bold; }
+.pay-unpaid  { color: #991b1b; font-weight: bold; }
+
 .payment-text {
     font-size: 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    /* Tambah ini dalam style.css anda */
-.st-processing { background: #dbeafe; color: #1e40af; } /* Warna Biru Lembut */
+}
+
+/* ---------- LOADING OVERLAY ---------- */
+
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(224, 229, 236, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--dark);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------- UTILITIES ---------- */
+
+.hidden {
+    display: none !important;
+}
+
+.custom-scroll::-webkit-scrollbar {
+    width: 0;
 }
