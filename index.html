@@ -12,105 +12,74 @@
 
     <div class="relative bg-[#e0e5ec] w-full h-full max-w-[450px] shadow-2xl overflow-hidden flex flex-col">
         
-        <!-- Header -->
         <header class="p-6 text-center">
-            <h1 class="text-xl font-bold text-gray-700 tracking-tight">CILI BOH SYSTEM</h1>
-            <p id="current-view-title" class="text-[10px] text-gray-500 uppercase tracking-[0.2em] mt-1 font-semibold">Dashboard</p>
+            <h1 class="text-xl font-bold text-gray-700">CILI BOH SYSTEM</h1>
+            <p id="current-view-title" class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Dashboard</p>
         </header>
 
-        <!-- Main Content -->
         <main class="flex-1 px-6 pb-24 overflow-y-auto custom-scroll">
             
-            <!-- VIEW 1: DASHBOARD -->
+            <!-- VIEW: DASHBOARD -->
             <section id="view-dashboard" class="app-view space-y-6">
-                <div class="grid grid-cols-2 gap-4" id="stats-grid">
-                    <div class="neu-card p-4">
-                        <span class="text-[9px] uppercase text-gray-400 font-bold">Jualan Hari Ini</span>
-                        <p id="stat-sales" class="text-lg font-bold text-gray-700">RM 0</p>
-                    </div>
-                    <div class="neu-card p-4">
-                        <span class="text-[9px] uppercase text-gray-400 font-bold">Untung Bersih</span>
-                        <p id="stat-profit" class="text-lg font-bold text-green-600">RM 0</p>
-                    </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="neu-card p-4"><span class="text-[9px] text-gray-400 font-bold uppercase">Sales</span><p id="stat-sales" class="text-lg font-bold">RM 0</p></div>
+                    <div class="neu-card p-4"><span class="text-[9px] text-gray-400 font-bold uppercase">Profit</span><p id="stat-profit" class="text-lg font-bold text-green-600">RM 0</p></div>
                 </div>
-                
                 <div class="neu-card p-4">
-                    <h3 class="text-[11px] font-bold text-gray-400 uppercase mb-3">Pesanan Terkini</h3>
-                    <div id="recent-orders-list" class="space-y-3">
-                        <p class="text-center text-gray-400 text-xs py-4 italic">Memuatkan data...</p>
-                    </div>
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Pesanan Terkini</h3>
+                    <div id="recent-orders-list" class="space-y-3"></div>
                 </div>
             </section>
 
-            <!-- VIEW 2: ORDER FORM -->
-            <section id="view-order" class="app-view hidden">
-               <div class="space-y-1">
-    <div class="flex justify-between items-center px-1">
-        <label class="text-[10px] font-bold text-gray-400 uppercase">Pelanggan</label>
-        <!-- Butang untuk buka form tambah pelanggan -->
-        <button onclick="toggleNewCustomerForm()" class="text-[10px] font-bold text-blue-500 uppercase">+ Tambah Baru</button>
-    </div>
-    <select id="input-customer" class="neu-input w-full" onchange="updatePrice()"></select>
-</div>
-
-<!-- FORM TERSEMBUNYI UNTUK PELANGGAN BARU -->
-<div id="new-customer-form" class="hidden neu-card p-4 mt-2 border border-blue-200 space-y-3">
-    <input type="text" id="new-cust-name" class="neu-input w-full text-xs" placeholder="Nama Kedai/Kilang">
-    <select id="new-cust-cat" class="neu-input w-full text-xs">
-        <option value="Retail">Retail</option>
-        <option value="Kilang">Kilang</option>
-    </select>
-    <input type="text" id="new-cust-phone" class="neu-input w-full text-xs" placeholder="No WhatsApp (601...)">
-    <button onclick="submitNewCustomer()" class="neu-btn w-full py-2 text-[10px] font-bold bg-blue-500 text-white">SIMPAN PELANGGAN</button>
-</div>
-            </section>
-
-            <!-- VIEW 3: TRACKING -->
-            <section id="view-tracking" class="app-view hidden space-y-4">
-                <div id="tracking-list" class="space-y-3">
-                    <!-- Data Delivery ditarik dari JS -->
-                </div>
-            </section>
-
-            <!-- VIEW 4: REPORT & EXPENSES -->
-            <section id="view-report" class="app-view hidden space-y-6">
+            <!-- VIEW: ORDER FORM -->
+            <section id="view-order" class="app-view hidden space-y-4">
                 <div class="neu-card p-5 space-y-4">
-                    <h3 class="text-[11px] font-bold text-gray-400 uppercase">Input Perbelanjaan</h3>
-                    <select id="exp-category" class="neu-input w-full text-xs">
-                        <option>Cili Kering</option>
-                        <option>Plastik/Getah</option>
-                        <option>Gaji Pekerja</option>
-                        <option>Bil Utiliti</option>
-                        <option>Lain-lain</option>
-                    </select>
-                    <input type="number" id="exp-amount" class="neu-input w-full text-xs" placeholder="Amaun RM">
-                    <button onclick="handleExpense()" class="neu-btn w-full py-3 text-xs font-bold text-gray-600 uppercase">Simpan Kos</button>
+                    <div class="flex justify-between items-center"><label class="text-[10px] font-bold text-gray-400 uppercase">Pelanggan</label>
+                    <button onclick="toggleNewCust()" class="text-[10px] text-blue-500 font-bold">+ BARU</button></div>
+                    
+                    <div id="new-cust-box" class="hidden space-y-2 p-3 bg-white/30 rounded-xl">
+                        <input id="nc-name" class="neu-input w-full" placeholder="Nama Kedai">
+                        <select id="nc-cat" class="neu-input w-full"><option value="Retail">Retail</option><option value="Kilang">Kilang</option></select>
+                        <input id="nc-phone" class="neu-input w-full" placeholder="601...">
+                        <button onclick="submitCustomer()" class="neu-btn w-full py-2 text-xs bg-blue-500 text-white font-bold">SIMPAN</button>
+                    </div>
+
+                    <select id="input-customer" class="neu-input w-full" onchange="updatePrice()"></select>
+                    <select id="input-product" class="neu-input w-full" onchange="updatePrice()"></select>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="input-qty" class="neu-input w-full" value="1" oninput="updatePrice()">
+                        <input type="number" id="input-paid" class="neu-input w-full" placeholder="Deposit">
+                    </div>
+                    <div class="neu-card p-3 flex justify-between bg-white/20"><span class="text-xs font-bold">TOTAL:</span><span id="display-total" class="font-bold text-red-500">RM 0.00</span></div>
+                    <button onclick="submitOrder()" class="neu-btn-primary w-full py-4 font-bold uppercase text-sm">Hantar Order</button>
+                </div>
+            </section>
+
+            <!-- VIEW: TRACKING -->
+            <section id="view-tracking" class="app-view hidden space-y-4" id="tracking-list"></section>
+
+            <!-- VIEW: REPORT -->
+            <section id="view-report" class="app-view hidden space-y-4">
+                <div class="neu-card p-5 space-y-4">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase">Perbelanjaan</h3>
+                    <select id="exp-cat" class="neu-input w-full"><option>Cili Kering</option><option>Gaji</option><option>Utiliti</option></select>
+                    <input id="exp-amt" type="number" class="neu-input w-full" placeholder="Amaun RM">
+                    <button onclick="submitExpense()" class="neu-btn w-full py-3 font-bold text-gray-600">SIMPAN KOS</button>
                 </div>
             </section>
 
         </main>
 
-        <!-- Bottom Navigation -->
-        <nav class="absolute bottom-0 w-full h-20 bg-[#e0e5ec] flex items-center justify-around px-4 border-t border-white/20">
-            <button onclick="switchView('dashboard')" class="nav-btn active" id="nav-dashboard">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            </button>
-            <button onclick="switchView('order')" class="nav-btn" id="nav-order">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            </button>
-            <button onclick="switchView('tracking')" class="nav-btn" id="nav-tracking">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1m-4-1a1 1 0 00-1 1H5"></path></svg>
-            </button>
-            <button onclick="switchView('report')" class="nav-btn" id="nav-report">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-            </button>
+        <nav class="absolute bottom-0 w-full h-20 bg-[#e0e5ec] flex items-center justify-around border-t border-white/20">
+            <button onclick="switchView('dashboard')" class="nav-btn active" id="nav-dashboard">🏠</button>
+            <button onclick="switchView('order')" class="nav-btn" id="nav-order">➕</button>
+            <button onclick="switchView('tracking')" class="nav-btn" id="nav-tracking">🚚</button>
+            <button onclick="switchView('report')" class="nav-btn" id="nav-report">📊</button>
         </nav>
-
     </div>
 
-    <!-- Scripting -->
     <script src="api.js"></script>
-<script src="ui.js"></script>
-<script src="app.js"></script>
+    <script src="ui.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
