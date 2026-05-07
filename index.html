@@ -11,19 +11,30 @@
 <body class="bg-[#e0e5ec] flex items-center justify-center h-screen overflow-hidden">
 
     <div class="relative bg-[#e0e5ec] w-full h-full max-w-[450px] shadow-2xl overflow-hidden flex flex-col">
-        
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay hidden">
+            <div class="loader"></div>
+        </div>
+
         <header class="p-6 text-center">
             <h1 class="text-xl font-bold text-gray-700">CILI BOH SYSTEM</h1>
             <p id="current-view-title" class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Dashboard</p>
         </header>
 
         <main class="flex-1 px-6 pb-24 overflow-y-auto custom-scroll">
-            
+
             <!-- VIEW: DASHBOARD -->
             <section id="view-dashboard" class="app-view space-y-6">
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="neu-card p-4"><span class="text-[9px] text-gray-400 font-bold uppercase">Sales</span><p id="stat-sales" class="text-lg font-bold">RM 0</p></div>
-                    <div class="neu-card p-4"><span class="text-[9px] text-gray-400 font-bold uppercase">Profit</span><p id="stat-profit" class="text-lg font-bold text-green-600">RM 0</p></div>
+                    <div class="neu-card p-4">
+                        <span class="text-[9px] text-gray-400 font-bold uppercase">Sales</span>
+                        <p id="stat-sales" class="text-lg font-bold">RM 0.00</p>
+                    </div>
+                    <div class="neu-card p-4">
+                        <span class="text-[9px] text-gray-400 font-bold uppercase">Profit</span>
+                        <p id="stat-profit" class="text-lg font-bold text-green-600">RM 0.00</p>
+                    </div>
                 </div>
                 <div class="neu-card p-4">
                     <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Pesanan Terkini</h3>
@@ -32,70 +43,78 @@
             </section>
 
             <!-- VIEW: ORDER FORM -->
-<section id="view-order" class="app-view hidden space-y-4">
-    <div class="neu-card p-5 space-y-4">
-        
-        <!-- Bahagian Pelanggan & Tier (Hanya Satu Sahaja) -->
-        <div class="space-y-1">
-            <div class="flex justify-between items-center px-1">
-                <label class="text-[10px] font-bold text-gray-400 uppercase">Pelanggan</label>
-                <span id="cust-tier-badge" class="text-[9px] font-bold text-orange-500 uppercase">TIER: -</span>
-            </div>
-            <select id="input-customer" class="neu-input w-full" onchange="updatePrice()"></select>
-        </div>
+            <section id="view-order" class="app-view hidden space-y-4">
+                <div class="neu-card p-5 space-y-4">
 
-        <!-- Bahagian Produk -->
-        <div class="space-y-1">
-            <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Produk</label>
-            <select id="input-product" class="neu-input w-full" onchange="updatePrice()"></select>
-        </div>
+                    <!-- Pelanggan + Tier -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center px-1">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Pelanggan</label>
+                            <span id="cust-tier-badge" class="text-[9px] font-bold text-orange-500 uppercase">TIER: -</span>
+                        </div>
+                        <select id="input-customer" class="neu-input w-full" onchange="updatePrice()"></select>
+                    </div>
 
-        <!-- Grid Kuantiti & Deposit -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="space-y-1">
-                <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Kuantiti</label>
-                <input type="number" id="input-qty" class="neu-input w-full" value="1" oninput="updatePrice()">
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Deposit (RM)</label>
-                <input type="number" id="input-paid" class="neu-input w-full" placeholder="0.00">
-            </div>
-        </div>
+                    <!-- Produk -->
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Produk</label>
+                        <select id="input-product" class="neu-input w-full" onchange="updatePrice()"></select>
+                    </div>
 
-        <!-- Total Display -->
-        <div class="neu-card p-4 bg-white/20 flex justify-between items-center">
-            <span class="text-xs font-bold text-gray-500">TOTAL:</span>
-            <span id="display-total" class="text-lg font-bold text-red-500">RM 0.00</span>
-        </div>
+                    <!-- Kuantiti & Deposit -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Kuantiti</label>
+                            <input type="number" id="input-qty" class="neu-input w-full" value="1" min="1" oninput="updatePrice()">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Deposit (RM)</label>
+                            <input type="number" id="input-paid" class="neu-input w-full" placeholder="0.00" min="0" step="0.01">
+                        </div>
+                    </div>
 
-        <button onclick="submitOrder()" class="neu-btn-primary w-full py-4 font-bold uppercase text-sm">Hantar Order</button>
-        
-        <div class="text-center">
-            <button onclick="toggleNewCust()" class="text-[10px] text-blue-500 font-bold uppercase">+ Daftar Pelanggan Baru</button>
-        </div>
-    </div>
+                    <!-- Total -->
+                    <div class="neu-card p-4 bg-white/20 flex justify-between items-center">
+                        <span class="text-xs font-bold text-gray-500">TOTAL:</span>
+                        <span id="display-total" class="text-lg font-bold text-red-500">RM 0.00</span>
+                    </div>
 
-    <!-- Form Pelanggan Baru (Hanya muncul bila klik + Daftar) -->
-    <div id="new-cust-box" class="hidden neu-card p-4 space-y-2 border border-blue-200">
-        <input id="nc-name" class="neu-input w-full" placeholder="Nama Kedai">
-        <select id="nc-cat" class="neu-input w-full">
-            <option value="Retail">Retail</option>
-            <option value="Kilang">Kilang</option>
-        </select>
-        <input id="nc-phone" class="neu-input w-full" placeholder="601...">
-        <button onclick="submitCustomer()" class="neu-btn w-full py-2 text-xs bg-blue-500 text-white font-bold">SIMPAN</button>
-    </div>
-</section>
+                    <button onclick="submitOrder()" class="neu-btn-primary w-full py-4 font-bold uppercase text-sm">Hantar Order</button>
+
+                    <div class="text-center">
+                        <button onclick="toggleNewCust()" class="text-[10px] text-blue-500 font-bold uppercase">+ Daftar Pelanggan Baru</button>
+                    </div>
+                </div>
+
+                <!-- Form Pelanggan Baru -->
+                <div id="new-cust-box" class="hidden neu-card p-4 space-y-2 border border-blue-200">
+                    <input id="nc-name" class="neu-input w-full" placeholder="Nama Kedai">
+                    <select id="nc-cat" class="neu-input w-full">
+                        <option value="Retail">Retail</option>
+                        <option value="Kilang">Kilang</option>
+                    </select>
+                    <input id="nc-phone" class="neu-input w-full" placeholder="601...">
+                    <button onclick="submitCustomer()" class="neu-btn w-full py-2 text-xs bg-blue-500 text-white font-bold">SIMPAN</button>
+                </div>
+            </section>
 
             <!-- VIEW: TRACKING -->
-            <section id="view-tracking" class="app-view hidden space-y-4" id="tracking-list"></section>
+            <section id="view-tracking" class="app-view hidden space-y-4">
+                <div id="tracking-list"></div>
+            </section>
 
             <!-- VIEW: REPORT -->
             <section id="view-report" class="app-view hidden space-y-4">
                 <div class="neu-card p-5 space-y-4">
                     <h3 class="text-[10px] font-bold text-gray-400 uppercase">Perbelanjaan</h3>
-                    <select id="exp-cat" class="neu-input w-full"><option>Cili Kering</option><option>Gaji</option><option>Utiliti</option></select>
-                    <input id="exp-amt" type="number" class="neu-input w-full" placeholder="Amaun RM">
+                    <select id="exp-cat" class="neu-input w-full">
+                        <option>Cili Kering</option>
+                        <option>Gaji</option>
+                        <option>Utiliti</option>
+                        <option>Sewa</option>
+                        <option>Lain-lain</option>
+                    </select>
+                    <input id="exp-amt" type="number" class="neu-input w-full" placeholder="Amaun RM" min="0" step="0.01">
                     <button onclick="submitExpense()" class="neu-btn w-full py-3 font-bold text-gray-600">SIMPAN KOS</button>
                 </div>
             </section>
