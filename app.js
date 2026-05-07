@@ -1,15 +1,11 @@
 function updatePrice() {
-    const custName = document.getElementById('input-customer').value;
-    const prodName = document.getElementById('input-product').value;
+    const cust = window.db.customers.find(c => c[1] === document.getElementById('input-customer').value);
+    const prod = window.db.products.find(p => p[1] === document.getElementById('input-product').value);
     const qty = document.getElementById('input-qty').value;
-
-    const customer = window.db.customers.find(c => c[1] === custName);
-    const product = window.db.products.find(p => p[1] === prodName);
-
-    if (customer && product) {
-        const price = customer[2] === 'Retail' ? product[3] : product[4];
-        window.currentTotal = price * qty;
-        document.getElementById('display-total').innerText = `RM ${window.currentTotal.toFixed(2)}`;
+    if(cust && prod) {
+        const price = cust[2] === 'Retail' ? prod[3] : prod[4];
+        window.total = price * qty;
+        document.getElementById('display-total').innerText = `RM ${window.total.toFixed(2)}`;
     }
 }
 
@@ -20,63 +16,34 @@ async function submitOrder() {
         category: window.db.customers.find(c => c[1] === document.getElementById('input-customer').value)[2],
         product: document.getElementById('input-product').value,
         qty: document.getElementById('input-qty').value,
-        grossAmount: window.currentTotal,
+        grossAmount: window.total,
         amountPaid: document.getElementById('input-paid').value || 0
     };
-
-    const res = await apiPost(payload);
-    if (res.result === 'success') {
-        alert(`Order ${res.orderId} Berjaya!`);
-        location.reload(); // Refresh untuk update data
-    }
+    await apiPost(payload);
+    alert("Order Disimpan!");
+    location.reload();
 }
 
-async function handleExpense() {
-    const payload = {
-        action: 'addExpense',
-        category: document.getElementById('exp-category').value,
-        amount: document.getElementById('exp-amount').value,
-        details: 'Dibuat dari App'
-    };
-    const res = await apiPost(payload);
-    if (res.result === 'success') alert("Kos berjaya disimpan!");
-}
-async function changeDeliveryStatus(orderId, newStatus) {
-    if(!confirm(`Tukar status order ${orderId} kepada ${newStatus}?`)) return;
-
-    const payload = {
-        action: 'updateDeliveryStatus',
-        orderId: orderId,
-        status: newStatus
-    };
-
-    const res = await apiPost(payload);
-    if (res.result === 'success') {
-        alert("Status dikemaskini!");
-        location.reload(); 
-    }
-}
-function toggleNewCustomerForm() {
-    const form = document.getElementById('new-customer-form');
-    form.classList.toggle('hidden');
-}
-
-async function submitNewCustomer() {
-    const name = document.getElementById('new-cust-name').value;
-    const cat = document.getElementById('new-cust-cat').value;
-    const phone = document.getElementById('new-cust-phone').value;
-
-    if (!name || !phone) return alert("Sila isi nama dan phone!");
-
+async function submitCustomer() {
     const payload = {
         action: 'addCustomer',
-        name: name,
-        category: cat,
-        phone: phone,
-        address: "-"
+        name: document.getElementById('nc-name').value,
+        category: document.getElementById('nc-cat').value,
+        phone: document.getElementById('nc-phone').value
     };
+    await apiPost(payload);
+    alert("Pelanggan Ditambah!");
+    location.reload();
+}
 
-    const res = await apiPost(payload);
-    alert("Pelanggan Berjaya Ditambah!");
-    location.reload(); // Refresh untuk masukkan nama baru dalam dropdown
+async function updateSt(id, st) {
+    await apiPost({action:'updateStatus', orderId: id, status: st});
+    alert("Status Kemaskini!");
+    location.reload();
+}
+
+async function submitExpense() {
+    await apiPost({action:'addExpense', category: document.getElementById('exp-cat').value, amount: document.getElementById('exp-amt').value, details: 'App'});
+    alert("Kos Disimpan!");
+    location.reload();
 }
