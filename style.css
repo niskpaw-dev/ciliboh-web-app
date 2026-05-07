@@ -1,0 +1,59 @@
+:root {
+    --bg: #e0e5ec;
+    --light-shadow: #ffffff;
+    --dark-shadow: #a3b1c6;
+    --primary-red: #ff4d4d;
+}
+
+body { font-family: 'Poppins', sans-serif; background-color: var(--bg); }
+
+/* Neumorphic Cards */
+.neu-card {
+    background: var(--bg);
+    border-radius: 20px;
+    box-shadow: 7px 7px 14px var(--dark-shadow), -7px -7px 14px var(--light-shadow);
+}
+
+/* Neumorphic Inputs */
+.neu-input {
+    background: var(--bg);
+    border: none;
+    border-radius: 12px;
+    box-shadow: inset 4px 4px 8px var(--dark-shadow), inset -4px -4px 8px var(--light-shadow);
+    padding: 12px;
+    outline: none;
+    font-size: 13px;
+    color: #4a5568;
+}
+
+/* Neumorphic Buttons */
+.neu-btn {
+    background: var(--bg);
+    border-radius: 12px;
+    box-shadow: 5px 5px 10px var(--dark-shadow), -5px -5px 10px var(--light-shadow);
+    transition: 0.2s;
+}
+.neu-btn:active { box-shadow: inset 3px 3px 6px var(--dark-shadow), inset -3px -3px 6px var(--light-shadow); }
+
+.neu-btn-primary {
+    background: var(--primary-red);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 4px 4px 10px var(--dark-shadow);
+}
+
+/* Navigation */
+.nav-btn { color: #a3b1c6; padding: 12px; transition: 0.3s; border-radius: 50%; }
+.nav-btn.active { 
+    color: var(--primary-red); 
+    box-shadow: inset 4px 4px 8px var(--dark-shadow), inset -4px -4px 8px var(--light-shadow); 
+}
+
+/* Badges */
+.badge { padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: bold; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-delivery { background: #d1ecf1; color: #0c5460; }
+.status-completed { background: #d4edda; color: #155724; }
+
+.hidden { display: none; }
+.custom-scroll::-webkit-scrollbar { width: 0; }
