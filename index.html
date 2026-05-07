@@ -50,6 +50,13 @@
                         <input type="number" id="input-qty" class="neu-input w-full" value="1" oninput="updatePrice()">
                         <input type="number" id="input-paid" class="neu-input w-full" placeholder="Deposit">
                     </div>
+
+                    <div class="flex justify-between items-center px-1">
+    <label class="text-[10px] font-bold text-gray-400 uppercase">Pelanggan</label>
+    <!-- Tambah ini: Indikator Kategori -->
+    <span id="cust-tier-badge" class="text-[9px] font-bold text-blue-500 uppercase">TIER: -</span>
+</div>
+<select id="input-customer" class="neu-input w-full" onchange="updatePrice()"></select>
                     <div class="neu-card p-3 flex justify-between bg-white/20"><span class="text-xs font-bold">TOTAL:</span><span id="display-total" class="font-bold text-red-500">RM 0.00</span></div>
                     <button onclick="submitOrder()" class="neu-btn-primary w-full py-4 font-bold uppercase text-sm">Hantar Order</button>
                 </div>
