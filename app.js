@@ -2,10 +2,6 @@
 // APP LOGIC - Form handlers & business logic
 // =====================================================
 
-/**
- * Parse harga yang mungkin number (1.5) atau string ("RM1.50").
- * Defensive — handle kedua-dua format dari Sheet.
- */
 function parsePrice(val) {
     if (typeof val === 'number') return isNaN(val) ? 0 : val;
     if (val == null || val === '') return 0;
@@ -14,9 +10,8 @@ function parsePrice(val) {
     return isNaN(num) ? 0 : num;
 }
 
-/**
- * Update price display bila customer/product/qty berubah
- */
+// ---------- ORDER FORM ----------
+
 function updatePrice() {
     if (!window.db) return;
 
@@ -31,21 +26,27 @@ function updatePrice() {
 
     const category = customer[2];
 
-    // Update tier badge
     const badge = document.getElementById('cust-tier-badge');
     badge.innerText = `TIER: ${category}`;
     badge.className = `text-[9px] font-bold uppercase ${
         category === 'Kilang' ? 'text-orange-500' : 'text-blue-500'
     }`;
 
-    // Pilih harga ikut category (Retail = col D index 3, Kilang = col E index 4)
     const unitPrice = parsePrice(category === 'Retail' ? product[3] : product[4]);
 
     window.total = unitPrice * qty;
     document.getElementById('display-total').innerText = `RM ${window.total.toFixed(2)}`;
-}
 
-// ---------- ORDER ----------
+    // Update stock display
+    const stock = parseInt(product[5]) || 0;
+    const stockEl = document.getElementById('product-stock');
+    if (stockEl) {
+        stockEl.innerText = `STOK: ${stock}`;
+        stockEl.className = `text-[9px] font-bold uppercase ${
+            stock <= 0 ? 'text-red-500' : (stock < 10 ? 'text-orange-500' : 'text-gray-500')
+        }`;
+    }
+}
 
 async function submitOrder() {
     if (!window.db) {
@@ -57,15 +58,8 @@ async function submitOrder() {
     const prodName = document.getElementById('input-product').value;
     const customer = window.db.customers.find(c => c[1] === custName);
 
-    // Validation
-    if (!customer) {
-        showError("Sila pilih pelanggan.");
-        return;
-    }
-    if (!prodName) {
-        showError("Sila pilih produk.");
-        return;
-    }
+    if (!customer) { showError("Sila pilih pelanggan."); return; }
+    if (!prodName) { showError("Sila pilih produk."); return; }
     if (!window.total || window.total <= 0) {
         showError("Total tidak sah. Sila semak kuantiti dan produk.");
         return;
@@ -88,7 +82,9 @@ async function submitOrder() {
     setButtonLoading(btn, false);
 
     if (res.result === 'success') {
-        showSuccess(`Order ${res.orderId || ''} berjaya disimpan!`);
+        let msg = `Order ${res.orderId || ''} berjaya disimpan!`;
+        if (res.stockWarning) msg += `\n⚠️ ${res.stockWarning}`;
+        showSuccess(msg);
         resetOrderForm();
         await fetchInitialData();
         switchView('dashboard');
@@ -121,10 +117,7 @@ async function submitCustomer() {
 
     const res = await apiPost({
         action: 'addCustomer',
-        name: name,
-        category: cat,
-        phone: phone,
-        address: "-"
+        name: name, category: cat, phone: phone, address: "-"
     });
 
     setButtonLoading(btn, false);
@@ -172,10 +165,7 @@ async function submitExpense() {
     setButtonLoading(btn, true, 'Menyimpan...');
 
     const res = await apiPost({
-        action: 'addExpense',
-        category: cat,
-        amount: amt,
-        details: 'App'
+        action: 'addExpense', category: cat, amount: amt, details: 'App'
     });
 
     setButtonLoading(btn, false);
@@ -189,7 +179,93 @@ async function submitExpense() {
     }
 }
 
-// ---------- BUTTON STATE HELPER ----------
+// ---------- RETURNS (Replacement) ----------
+
+/**
+ * Buka modal return untuk order tertentu.
+ * Pre-fill order details dari tracking card.
+ */
+function openReturnModal(orderId, productName, originalQty) {
+    document.getElementById('rt-order-id').innerText = orderId;
+    document.getElementById('rt-product-name').innerText = productName;
+    document.getElementById('rt-original-qty').innerText = originalQty;
+    document.getElementById('rt-order-id-hidden').value = orderId;
+    document.getElementById('rt-product-hidden').value = productName;
+    document.getElementById('rt-qty').value = 1;
+    document.getElementById('rt-reason').value = 'Pakej Pecah';
+    document.getElementById('return-modal').classList.remove('hidden');
+}
+
+function closeReturnModal() {
+    document.getElementById('return-modal').classList.add('hidden');
+}
+
+async function submitReturn() {
+    const orderId = document.getElementById('rt-order-id-hidden').value;
+    const product = document.getElementById('rt-product-hidden').value;
+    const qty = parseInt(document.getElementById('rt-qty').value);
+    const reason = document.getElementById('rt-reason').value;
+
+    if (!qty || qty <= 0) {
+        showError("Sila masukkan kuantiti yang sah.");
+        return;
+    }
+
+    const btn = event.target;
+    setButtonLoading(btn, true, 'Menyimpan...');
+
+    const res = await apiPost({
+        action: 'addReturn',
+        orderId: orderId,
+        product: product,
+        qty: qty,
+        reason: reason
+    });
+
+    setButtonLoading(btn, false);
+
+    if (res.result === 'success') {
+        showSuccess(`Return ${res.returnId} direkodkan. Stok baki: ${res.newStock}`);
+        closeReturnModal();
+        await fetchInitialData();
+    } else {
+        showError(`Gagal: ${res.error || 'Unknown error'}`);
+    }
+}
+
+// ---------- RESTOCK ----------
+
+async function submitRestock(productName) {
+    const inputId = `restock-input-${cssEscape(productName)}`;
+    const input = document.getElementById(inputId);
+    const qty = parseInt(input.value);
+
+    if (!qty || qty <= 0) {
+        showError("Sila masukkan kuantiti yang sah.");
+        return;
+    }
+
+    const btn = event.target;
+    setButtonLoading(btn, true, '...');
+
+    const res = await apiPost({
+        action: 'restock',
+        product: productName,
+        qty: qty
+    });
+
+    setButtonLoading(btn, false);
+
+    if (res.result === 'success') {
+        showSuccess(`Stok ${productName} sekarang: ${res.newStock}`);
+        input.value = '';
+        await fetchInitialData();
+    } else {
+        showError(`Gagal: ${res.error || 'Unknown error'}`);
+    }
+}
+
+// ---------- HELPERS ----------
 
 function setButtonLoading(btn, loading, loadingText) {
     if (!btn) return;
@@ -205,4 +281,11 @@ function setButtonLoading(btn, loading, loadingText) {
         btn.style.opacity = '1';
         btn.style.cursor = '';
     }
+}
+
+/**
+ * Sanitize string untuk guna dalam ID HTML (no spaces, special chars)
+ */
+function cssEscape(str) {
+    return String(str || '').replace(/[^a-zA-Z0-9]/g, '_');
 }
