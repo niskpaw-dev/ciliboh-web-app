@@ -1,5 +1,6 @@
 // =====================================================
 // UI RENDERING
+// v2.1: WA buttons di tracking & recent orders
 // =====================================================
 
 function switchView(v) {
@@ -48,9 +49,6 @@ function escapeAttr(str) {
     return escapeHtml(str);
 }
 
-/**
- * Format date safely - handles ISO string, Date object, or empty
- */
 function formatDate(val) {
     if (!val) return '-';
     try {
@@ -62,9 +60,6 @@ function formatDate(val) {
     } catch { return '-'; }
 }
 
-/**
- * Count returns per order ID (untuk tunjuk badge dalam tracking)
- */
 function countReturns(orderId, returns) {
     return (returns || []).filter(r => r[1] === orderId).length;
 }
@@ -89,8 +84,6 @@ function renderUI() {
     if (typeof updatePrice === "function") updatePrice();
 }
 
-// ---------- DASHBOARD STATS ----------
-
 function renderDashboard(validOrders) {
     const stats = window.db.stats || {};
     const liveSales = validOrders.reduce((sum, o) => sum + safeNum(o[6]), 0);
@@ -103,8 +96,6 @@ function renderDashboard(validOrders) {
     document.getElementById('stat-sales').innerText = `RM ${totalSales.toFixed(2)}`;
     document.getElementById('stat-profit').innerText = `RM ${netProfit.toFixed(2)}`;
 }
-
-// ---------- DROPDOWNS ----------
 
 function renderDropdowns() {
     const customers = window.db.customers || [];
@@ -120,6 +111,7 @@ function renderDropdowns() {
 }
 
 // ---------- RECENT ORDERS (Dashboard) ----------
+// v2.1: Tambah button "💬 Bayar" kalau payment Unpaid/Partial
 
 function renderRecentOrders(validOrders) {
     const recentList = document.getElementById('recent-orders-list');
@@ -130,8 +122,17 @@ function renderRecentOrders(validOrders) {
     }
 
     recentList.innerHTML = validOrders.map(o => {
+        const orderId = o[0];
         const payStatus = o[11] || "Unpaid";
         const netAmount = safeNum(o[8]) || safeNum(o[6]);
+        const showReminderBtn = payStatus === 'Unpaid' || payStatus === 'Partial';
+
+        const reminderBtn = showReminderBtn
+            ? `<button onclick="sendPaymentReminderForOrder('${escapeAttr(orderId)}')" 
+                     class="text-[9px] text-green-600 font-bold mt-1" 
+                     title="Hantar reminder via WhatsApp">💬 Bayar</button>`
+            : '';
+
         return `
         <div class="neu-card p-3 flex justify-between items-center text-[11px] mb-3">
             <div>
@@ -145,12 +146,16 @@ function renderRecentOrders(validOrders) {
                     <span class="w-1.5 h-1.5 rounded-full ${getPaymentDot(payStatus)}"></span>
                     <span class="payment-text ${getPaymentClass(payStatus)}">${escapeHtml(payStatus)}</span>
                 </div>
+                ${reminderBtn}
             </div>
         </div>`;
     }).join('');
 }
 
-// ---------- TRACKING (with Return button) ----------
+// ---------- TRACKING (with WA + Return buttons) ----------
+// v2.1: 2-row button layout untuk avoid crowding
+// Row 1: status updates (Process, Deliver, Done)
+// Row 2: secondary actions (Return, WhatsApp)
 
 function renderTracking(validOrders, allReturns) {
     const trackingList = document.getElementById('tracking-list');
@@ -179,18 +184,25 @@ function renderTracking(validOrders, allReturns) {
                     <span class="badge ${getStatusClass(o[12])}">${escapeHtml(o[12] || 'Pending')}</span>
                 </div>
                 <p class="font-bold text-gray-700">${escapeHtml(o[2])} - ${escapeHtml(product)} (${qty})</p>
-                <div class="flex flex-wrap gap-2 pt-2 border-t border-white/20">
-                    <button onclick="updateSt('${escapeAttr(orderId)}','Processing')" class="neu-btn px-2 py-1 text-[9px]">Process</button>
-                    <button onclick="updateSt('${escapeAttr(orderId)}','Delivery')" class="neu-btn px-2 py-1 text-[9px]">Deliver</button>
-                    <button onclick="updateSt('${escapeAttr(orderId)}','Completed')" class="neu-btn px-2 py-1 text-[9px] text-green-600 font-bold">Done</button>
-                    <button onclick="openReturnModal('${escapeAttr(orderId)}','${escapeAttr(product)}',${qty})" class="neu-btn px-2 py-1 text-[9px] text-orange-600 font-bold">↺ Return</button>
+                
+                <!-- Row 1: Status update buttons -->
+                <div class="flex gap-2 pt-2 border-t border-white/20">
+                    <button onclick="updateSt('${escapeAttr(orderId)}','Processing')" class="neu-btn px-2 py-1 text-[9px] flex-1">Process</button>
+                    <button onclick="updateSt('${escapeAttr(orderId)}','Delivery')" class="neu-btn px-2 py-1 text-[9px] flex-1">Deliver</button>
+                    <button onclick="updateSt('${escapeAttr(orderId)}','Completed')" class="neu-btn px-2 py-1 text-[9px] flex-1 text-green-600 font-bold">Done</button>
+                </div>
+                
+                <!-- Row 2: Secondary actions -->
+                <div class="flex gap-2">
+                    <button onclick="openReturnModal('${escapeAttr(orderId)}','${escapeAttr(product)}',${qty})" class="neu-btn px-2 py-1 text-[9px] flex-1 text-orange-600 font-bold">↺ Return</button>
+                    <button onclick="sendStatusWA('${escapeAttr(orderId)}')" class="neu-btn px-2 py-1 text-[9px] flex-1 text-green-600 font-bold">💬 WhatsApp</button>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// ---------- STOCK SECTION (Reports page) ----------
+// ---------- STOCK SECTION (Reports) ----------
 
 function renderStockSection() {
     const stockList = document.getElementById('stock-list');
@@ -225,7 +237,7 @@ function renderStockSection() {
     }).join('');
 }
 
-// ---------- RETURNS HISTORY (Reports page) ----------
+// ---------- RETURNS HISTORY (Reports) ----------
 
 function renderReturnsHistory(allReturns) {
     const list = document.getElementById('returns-list');
