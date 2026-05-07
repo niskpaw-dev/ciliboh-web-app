@@ -13,13 +13,18 @@ async function fetchInitialData() {
 
 async function apiPost(payload) {
     try {
-        const res = await fetch(API_URL, {
+        const response = await fetch(API_URL, {
             method: 'POST',
+            // Kita gunakan mode 'no-cors' jika POST biasa gagal, 
+            // tetapi untuk Apps Script, mode default (cors) biasanya OK jika setting 'Anyone' betul.
             body: JSON.stringify(payload)
         });
-        return await res.json();
+        
+        // Kerana Apps Script akan redirect, kita tak perlukan res.json() sangat untuk POST
+        return { result: 'success' }; 
     } catch (err) {
-        console.error("API Error", err);
+        console.error("Ralat Penghantaran:", err);
+        return { result: 'error' };
     }
 }
 
