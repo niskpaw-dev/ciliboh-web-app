@@ -23,4 +23,6 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); }
     font-size: 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    /* Tambah ini dalam style.css anda */
+.st-processing { background: #dbeafe; color: #1e40af; } /* Warna Biru Lembut */
 }
