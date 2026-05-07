@@ -41,3 +41,18 @@ async function handleExpense() {
     const res = await apiPost(payload);
     if (res.result === 'success') alert("Kos berjaya disimpan!");
 }
+async function changeDeliveryStatus(orderId, newStatus) {
+    if(!confirm(`Tukar status order ${orderId} kepada ${newStatus}?`)) return;
+
+    const payload = {
+        action: 'updateDeliveryStatus',
+        orderId: orderId,
+        status: newStatus
+    };
+
+    const res = await apiPost(payload);
+    if (res.result === 'success') {
+        alert("Status dikemaskini!");
+        location.reload(); 
+    }
+}
