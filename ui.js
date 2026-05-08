@@ -1,6 +1,6 @@
 // =====================================================
 // UI RENDERING
-// v2.1: WA buttons di tracking & recent orders
+// v2.3: Payment update buttons + WA reminder rename
 // =====================================================
 
 function switchView(v) {
@@ -111,7 +111,9 @@ function renderDropdowns() {
 }
 
 // ---------- RECENT ORDERS (Dashboard) ----------
-// v2.1: Tambah button "💬 Bayar" kalau payment Unpaid/Partial
+// v2.3: Dua butang untuk Unpaid/Partial:
+//   - "💬 Reminder" — hantar WA reminder (passive, chase customer)
+//   - "✓ Bayar" — record bayaran sebenar (active, update payment)
 
 function renderRecentOrders(validOrders) {
     const recentList = document.getElementById('recent-orders-list');
@@ -125,12 +127,17 @@ function renderRecentOrders(validOrders) {
         const orderId = o[0];
         const payStatus = o[11] || "Unpaid";
         const netAmount = safeNum(o[8]) || safeNum(o[6]);
-        const showReminderBtn = payStatus === 'Unpaid' || payStatus === 'Partial';
+        const showActions = payStatus === 'Unpaid' || payStatus === 'Partial';
 
-        const reminderBtn = showReminderBtn
-            ? `<button onclick="sendPaymentReminderForOrder('${escapeAttr(orderId)}')" 
-                     class="text-[9px] text-green-600 font-bold mt-1" 
-                     title="Hantar reminder via WhatsApp">💬 Bayar</button>`
+        const actionButtons = showActions
+            ? `<div class="flex gap-2 mt-1.5">
+                 <button onclick="sendPaymentReminderForOrder('${escapeAttr(orderId)}')"
+                         class="text-[9px] text-green-600 font-bold whitespace-nowrap"
+                         title="Hantar reminder via WhatsApp">💬 Reminder</button>
+                 <button onclick="openPaymentModal('${escapeAttr(orderId)}')"
+                         class="text-[9px] text-blue-600 font-bold whitespace-nowrap"
+                         title="Rekod bayaran diterima">✓ Bayar</button>
+               </div>`
             : '';
 
         return `
@@ -146,16 +153,13 @@ function renderRecentOrders(validOrders) {
                     <span class="w-1.5 h-1.5 rounded-full ${getPaymentDot(payStatus)}"></span>
                     <span class="payment-text ${getPaymentClass(payStatus)}">${escapeHtml(payStatus)}</span>
                 </div>
-                ${reminderBtn}
+                ${actionButtons}
             </div>
         </div>`;
     }).join('');
 }
 
-// ---------- TRACKING (with WA + Return buttons) ----------
-// v2.1: 2-row button layout untuk avoid crowding
-// Row 1: status updates (Process, Deliver, Done)
-// Row 2: secondary actions (Return, WhatsApp)
+// ---------- TRACKING ----------
 
 function renderTracking(validOrders, allReturns) {
     const trackingList = document.getElementById('tracking-list');
@@ -184,15 +188,13 @@ function renderTracking(validOrders, allReturns) {
                     <span class="badge ${getStatusClass(o[12])} flex-shrink-0">${escapeHtml(o[12] || 'Pending')}</span>
                 </div>
                 <p class="font-bold text-gray-700 truncate">${escapeHtml(o[2])} - ${escapeHtml(product)} (${qty})</p>
-                
-                <!-- Row 1: Status update buttons -->
+
                 <div class="flex gap-2 pt-2 border-t border-white/20">
                     <button onclick="updateSt('${escapeAttr(orderId)}','Processing')" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0">Process</button>
                     <button onclick="updateSt('${escapeAttr(orderId)}','Delivery')" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0">Deliver</button>
                     <button onclick="updateSt('${escapeAttr(orderId)}','Completed')" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0 text-green-600 font-bold">Done</button>
                 </div>
-                
-                <!-- Row 2: Secondary actions -->
+
                 <div class="flex gap-2">
                     <button onclick="openReturnModal('${escapeAttr(orderId)}','${escapeAttr(product)}',${qty})" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0 text-orange-600 font-bold">↺ Return</button>
                     <button onclick="sendStatusWA('${escapeAttr(orderId)}')" class="neu-btn px-1 py-1 text-[9px] flex-1 min-w-0 text-green-600 font-bold">💬 WA</button>
@@ -202,7 +204,7 @@ function renderTracking(validOrders, allReturns) {
     }).join('');
 }
 
-// ---------- STOCK SECTION (Reports) ----------
+// ---------- STOCK SECTION ----------
 
 function renderStockSection() {
     const stockList = document.getElementById('stock-list');
@@ -237,7 +239,7 @@ function renderStockSection() {
     }).join('');
 }
 
-// ---------- RETURNS HISTORY (Reports) ----------
+// ---------- RETURNS HISTORY ----------
 
 function renderReturnsHistory(allReturns) {
     const list = document.getElementById('returns-list');
