@@ -60,6 +60,64 @@
             </div>
         </div>
 
+        <!-- PAYMENT MODAL (v2.3) -->
+        <div id="payment-modal" class="modal-overlay hidden" onclick="if(event.target===this)closePaymentModal()">
+            <div class="modal-content neu-card p-5 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-gray-700">Update Bayaran</h3>
+                    <button onclick="closePaymentModal()" class="text-gray-400 text-lg font-bold leading-none">×</button>
+                </div>
+
+                <!-- Info ringkasan order -->
+                <div class="text-[10px] space-y-1 bg-white/30 p-3 rounded-lg">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Order:</span>
+                        <b id="pay-order-id" class="truncate ml-2">-</b>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Pelanggan:</span>
+                        <b id="pay-cust-name" class="truncate ml-2">-</b>
+                    </div>
+                    <div class="flex justify-between mt-2 pt-2 border-t border-white/40">
+                        <span class="text-gray-400">Total:</span>
+                        <b id="pay-total">RM 0.00</b>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Sudah bayar:</span>
+                        <b id="pay-paid">RM 0.00</b>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-bold text-red-500">Baki:</span>
+                        <b id="pay-balance" class="text-red-500">RM 0.00</b>
+                    </div>
+                </div>
+
+                <input type="hidden" id="pay-order-id-hidden">
+
+                <!-- Pilihan mode bayaran -->
+                <div class="space-y-2 pt-1">
+                    <label class="flex items-center gap-2 text-xs cursor-pointer">
+                        <input type="radio" name="pay-mode" id="pay-mode-full" value="full" checked onchange="togglePaymentMode()" class="cursor-pointer">
+                        <span id="pay-full-label" class="font-bold text-gray-700">Bayar penuh baki</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-xs cursor-pointer">
+                        <input type="radio" name="pay-mode" id="pay-mode-partial" value="partial" onchange="togglePaymentMode()" class="cursor-pointer">
+                        <span class="font-bold text-gray-700">Bayar sebahagian</span>
+                    </label>
+                    <input type="number" id="pay-amount-input" class="neu-input w-full" placeholder="Amaun (RM)" min="0.01" step="0.01" disabled>
+                </div>
+
+                <div class="text-[9px] text-gray-500 italic px-1">
+                    Status akan auto-update ikut amaun: Paid / Partial / Unpaid.
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="closePaymentModal()" class="neu-btn flex-1 py-3 text-xs font-bold text-gray-600">Batal</button>
+                    <button onclick="submitPayment()" class="neu-btn flex-1 py-3 text-xs font-bold bg-green-500 text-white">SIMPAN</button>
+                </div>
+            </div>
+        </div>
+
         <header class="flex-shrink-0 p-6 text-center">
             <h1 class="text-xl font-bold text-gray-700">CILI BOH SYSTEM</h1>
             <p id="current-view-title" class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Dashboard</p>
@@ -147,13 +205,11 @@
             <!-- VIEW: REPORT -->
             <section id="view-report" class="app-view hidden space-y-5 pb-6">
 
-                <!-- Stock Section -->
                 <div class="neu-card p-5">
                     <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Stok Produk</h3>
                     <div id="stock-list"></div>
                 </div>
 
-                <!-- Expense Form -->
                 <div class="neu-card p-5 space-y-4">
                     <h3 class="text-[10px] font-bold text-gray-400 uppercase">Perbelanjaan</h3>
                     <select id="exp-cat" class="neu-input w-full">
@@ -167,7 +223,6 @@
                     <button onclick="submitExpense()" class="neu-btn w-full py-3 font-bold text-gray-600">SIMPAN KOS</button>
                 </div>
 
-                <!-- Returns History -->
                 <div class="neu-card p-5">
                     <h3 class="text-[10px] font-bold text-gray-400 uppercase mb-3">Returns Terkini</h3>
                     <div id="returns-list"></div>
