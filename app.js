@@ -1,6 +1,6 @@
 // =====================================================
 // APP LOGIC - Form handlers & business logic
-// v2.1: WhatsApp click-to-chat integration
+// v2.3: Payment update modal
 // =====================================================
 
 function parsePrice(val) {
@@ -89,7 +89,6 @@ async function submitOrder() {
         const orderId = res.orderId;
         const hasPhone = customer[3] && String(customer[3]).trim();
 
-        // Combined success + WA prompt (kurangkan jumlah popup)
         let promptMsg = `✓ Order ${orderId} berjaya disimpan!`;
         if (res.stockWarning) promptMsg += `\n⚠️ ${res.stockWarning}`;
 
@@ -274,28 +273,111 @@ async function submitRestock(productName) {
 }
 
 // =====================================================
-// WHATSAPP CLICK-TO-CHAT (v2.1)
+// PAYMENT UPDATE (v2.3)
 // =====================================================
 
 /**
- * Normalize phone number ke format WhatsApp wa.me (international, no +).
- * Handle: "0123456789", "+60123456789", "60-123-456789", etc.
+ * Buka modal payment untuk order tertentu.
+ * Pre-fill dengan info order: total, dah bayar, baki.
  */
+function openPaymentModal(orderId) {
+    const order = (window.db.orders || []).find(o => o[0] === orderId);
+    if (!order) {
+        showError("Order tidak dijumpai.");
+        return;
+    }
+
+    const net = parseFloat(order[8]) || parseFloat(order[6]) || 0;
+    const paid = parseFloat(order[9]) || 0;
+    const balance = net - paid;
+
+    // Pre-fill modal
+    document.getElementById('pay-order-id').innerText = orderId;
+    document.getElementById('pay-order-id-hidden').value = orderId;
+    document.getElementById('pay-cust-name').innerText = order[2] || '-';
+    document.getElementById('pay-total').innerText = `RM ${net.toFixed(2)}`;
+    document.getElementById('pay-paid').innerText = `RM ${paid.toFixed(2)}`;
+    document.getElementById('pay-balance').innerText = `RM ${balance.toFixed(2)}`;
+    document.getElementById('pay-full-label').innerText = `Bayar penuh baki (RM ${balance.toFixed(2)})`;
+
+    // Reset radio ke default (full)
+    document.getElementById('pay-mode-full').checked = true;
+    document.getElementById('pay-mode-partial').checked = false;
+    document.getElementById('pay-amount-input').value = '';
+    document.getElementById('pay-amount-input').disabled = true;
+
+    document.getElementById('payment-modal').classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('payment-modal').classList.add('hidden');
+}
+
+/**
+ * Toggle antara mode "Bayar penuh" dan "Bayar sebahagian".
+ * Bila partial dipilih, enable input dan focus.
+ */
+function togglePaymentMode() {
+    const isFull = document.getElementById('pay-mode-full').checked;
+    const input = document.getElementById('pay-amount-input');
+    input.disabled = isFull;
+    if (isFull) {
+        input.value = '';
+    } else {
+        setTimeout(() => input.focus(), 50);
+    }
+}
+
+async function submitPayment() {
+    const orderId = document.getElementById('pay-order-id-hidden').value;
+    const isFull = document.getElementById('pay-mode-full').checked;
+
+    let payload = { action: 'updatePayment', orderId: orderId };
+
+    if (isFull) {
+        payload.payFull = true;
+    } else {
+        const amount = parseFloat(document.getElementById('pay-amount-input').value);
+        if (!amount || amount <= 0) {
+            showError("Sila masukkan amaun yang sah.");
+            return;
+        }
+        payload.amount = amount;
+        payload.payFull = false;
+    }
+
+    const btn = event.target;
+    setButtonLoading(btn, true, 'Menyimpan...');
+
+    const res = await apiPost(payload);
+    setButtonLoading(btn, false);
+
+    if (res.result === 'success') {
+        let msg = `Bayaran direkodkan!\nStatus: ${res.newStatus}`;
+        if (res.isOverpaid) {
+            msg += `\n⚠️ Lebih bayar RM ${Math.abs(res.newBalance).toFixed(2)}`;
+        }
+        showSuccess(msg);
+        closePaymentModal();
+        await fetchInitialData();
+    } else {
+        showError(`Gagal: ${res.error || 'Unknown error'}`);
+    }
+}
+
+// =====================================================
+// WHATSAPP CLICK-TO-CHAT
+// =====================================================
+
 function formatPhone(phone) {
     if (!phone) return null;
     let cleaned = String(phone).replace(/[^\d]/g, '');
     if (!cleaned) return null;
-    // Kalau start dengan 60, dah ada country code
     if (cleaned.startsWith('60')) return cleaned;
-    // Kalau start dengan 0, ganti dengan 60 (Malaysia)
     if (cleaned.startsWith('0')) return '60' + cleaned.substring(1);
-    // Default: assume Malaysia, prepend 60
     return '60' + cleaned;
 }
 
-/**
- * Generic WhatsApp opener. Cari customer phone, buka wa.me dengan mesej.
- */
 function sendWhatsApp(custName, message) {
     const customer = window.db.customers.find(c => c[1] === custName);
     if (!customer) {
@@ -312,8 +394,6 @@ function sendWhatsApp(custName, message) {
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
 }
-
-// ---------- MESSAGE BUILDERS ----------
 
 function buildConfirmation(orderId, custName, product, qty, total, paid) {
     const balance = total - paid;
@@ -355,7 +435,6 @@ Terima kasih atas sokongan! 🙏
 
 - Cili Boh`;
     }
-    // Default (Pending atau status tak dikenali)
     return `Salam ${custName},
 Update Order #${orderId}
 Status sekarang: ${status}
@@ -377,17 +456,11 @@ Boleh transfer? Terima kasih 🙏
 - Cili Boh`;
 }
 
-// ---------- ENTRY POINTS (dipanggil dari UI) ----------
-
 function sendConfirmation(orderId, custName, product, qty, total, paid) {
     const message = buildConfirmation(orderId, custName, product, qty, total, paid);
     sendWhatsApp(custName, message);
 }
 
-/**
- * Hantar status update — pilih mesej ikut current delivery status.
- * Dipanggil dari tracking card.
- */
 function sendStatusWA(orderId) {
     const order = (window.db.orders || []).find(o => o[0] === orderId);
     if (!order) {
@@ -400,9 +473,6 @@ function sendStatusWA(orderId) {
     sendWhatsApp(custName, message);
 }
 
-/**
- * Hantar payment reminder. Dipanggil dari dashboard recent orders.
- */
 function sendPaymentReminderForOrder(orderId) {
     const order = (window.db.orders || []).find(o => o[0] === orderId);
     if (!order) {
